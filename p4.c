@@ -24,10 +24,10 @@ int main(){
     semid = semget(keySem, 1, IPC_CREAT | 0644);
 
 	// Memoria de resultados 
-	int *RESULTADOS;
+	int *RESULTADO;
     key_t keyResultados = ftok(".",'d');
     int shmidResultados = shmget(keyResultados, sizeof(int)*ROWS, IPC_CREAT| 0777);
-    RESULTADOS= (int*)shmat(shmidResultados, NULL, 0);
+    RESULTADO= (int*)shmat(shmidResultados, NULL, 0);
 
 	while(1){
 	printf("Esperando proceso padre\n");
@@ -37,14 +37,14 @@ int main(){
 	}
 
 	// Inicializar primer valor para evitar multiplicación por 0
-	RESULTADOS[2] = MATRIX[18];
+	RESULTADO[2] = MATRIX[18];
 
 	printf("Iniciando multiplicación\n");
 	for (int i = 19; i < COLS*3; i++) {
-		RESULTADOS[2] *= MATRIX[i];
+		RESULTADO[2] *= MATRIX[i];
 	}
 
-	printf("\nLa multiplicación de la tercera fila es %d \n", RESULTADOS[2]);
+	printf("\nLa multiplicación de la tercera fila es %d \n", RESULTADO[2]);
 	semctl(semid, 0, SETVAL, 0);
 
     return 0;

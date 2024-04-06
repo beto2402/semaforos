@@ -26,7 +26,7 @@ int main(){
     semctl(semid, 0, SETVAL, 0);
 
     // Memoria de resultados 
-    int *RESULTADOS;
+    int *RESULTADO;
     key_t keyResultados = ftok(".", 'd');
     int shmidResultados = shmget(keyResultados, sizeof(int)*ROWS, IPC_CREAT | 0777);
 
@@ -35,39 +35,39 @@ int main(){
     for (int i = 0; i < ROWS * COLS; i++) {
         MATRIX[i] = values[i / COLS][i % COLS];
     }
-    printf("... Terminando de guardar matriz \n");
+    printf("Matriz guardada \n");
 
     semctl(semid, 0, SETVAL, 1);
 
     while (semctl(semid, 0, GETVAL, 0) == 1) {
-        printf("Esperando multiplicación 1...\n");
-        sleep(2);
+        printf("Esperando multiplicación 1\n");
+        sleep(1);
     }
-    RESULTADOS = (int*)shmat(shmidResultados, NULL, 0);
-    printf("\nLa multiplicación de la primer fila es %d \n", RESULTADOS[0]);
+    RESULTADO = (int*)shmat(shmidResultados, NULL, 0);
+    printf("\nLa multiplicación de la primer fila es %d \n", RESULTADO[0]);
 
     semctl(semid, 0, SETVAL, 1);
 
     while (semctl(semid, 0, GETVAL, 0) == 1) {
-        printf("Esperando multiplicación 2...\n");
-        sleep(2);
+        printf("Esperando multiplicación 2\n");
+        sleep(1);
     }
-    RESULTADOS = (int*)shmat(shmidResultados, NULL, 0);
-    printf("\nLa multiplicación de la segunda fila es %d \n", RESULTADOS[1]);
+    RESULTADO = (int*)shmat(shmidResultados, NULL, 0);
+    printf("\nLa multiplicación de la segunda fila es %d \n", RESULTADO[1]);
 
     semctl(semid, 0, SETVAL, 1);
 
     while (semctl(semid, 0, GETVAL, 0) == 1) {
         printf("Esperando multiplicación 3...\n");
-        sleep(2);
+        sleep(1);
     }
-    RESULTADOS = (int*)shmat(shmidResultados, NULL, 0);
-    printf("\nLa multiplicación de la tercera fila es %d \n", RESULTADOS[2]);
+    RESULTADO = (int*)shmat(shmidResultados, NULL, 0);
+    printf("\nLa multiplicación de la tercera fila es %d \n", RESULTADO[2]);
 
-    printf("\n\nLos resultados son: \n(%d, %d, %d) \n", RESULTADOS[0], RESULTADOS[1], RESULTADOS[2]);
+    printf("\n\nLos resultados son: \n(%d, %d, %d) \n", RESULTADO[0], RESULTADO[1], RESULTADO[2]);
 
     shmdt(MATRIX);
-    shmdt(RESULTADOS);
+    shmdt(RESULTADO);
 
     shmctl(shmidMatriz, IPC_RMID, 0);
     shmctl(shmidResultados, IPC_RMID, 0);
