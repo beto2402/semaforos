@@ -18,9 +18,9 @@ int main(){
 	int (*MATRIX) = (int*)shmat(shmidMatriz, NULL, 0);
 
     // Memoria de semáforo 
-    int semid;
-    key_t keySem = ftok(".", 'b');
-    semid = semget(keySem, 1, IPC_CREAT | 0644);
+    int semid_2;
+    key_t keySem = ftok(".", '2');
+    semid_2 = semget(keySem, 1, IPC_CREAT | 0644);
 
 	// Memoria de resultados 
 	int *RESULTADO;
@@ -31,7 +31,7 @@ int main(){
 	while(1){
 	printf("Esperando proceso padre\n");
 		sleep(2);
-		if(semctl(semid, 0, GETVAL, 0) == 1){break;}
+		if(semctl(semid_2, 0, GETVAL, 0) == 1){break;}
 	}
 	
 	// Inicializar primer valor para evitar multiplicación por 0
@@ -43,7 +43,7 @@ int main(){
 	}
 
 	printf("\nLa multiplicación de la segunda fila es %d \n", RESULTADO[1]);
-	semctl(semid, 0, SETVAL, 0);
+	semctl(semid_2, 0, SETVAL, 0);
 
     return 0;
 }

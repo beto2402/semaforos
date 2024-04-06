@@ -20,10 +20,23 @@ int main(){
     MATRIX = (int*)shmat(shmidMatriz, NULL, 0);
 
     // Memoria de semáforo 
-    int semid;
-    key_t keySem = ftok(".", 'b');
-    semid = semget(keySem, 1, IPC_CREAT | 0644);
-    semctl(semid, 0, SETVAL, 0);
+    int semid_1;
+    key_t keySem = ftok(".", '1');
+    semid_1 = semget(keySem, 1, IPC_CREAT | 0644);
+    semctl(semid_1, 0, SETVAL, 1);
+
+    // Memoria de semáforo 
+    int semid_2;
+    key_t keySem2 = ftok(".", '2');
+    semid_2 = semget(keySem2, 1, IPC_CREAT | 0644);
+    semctl(semid_2, 0, SETVAL, 1);
+
+    // Memoria de semáforo 
+    int semid_3;
+    key_t keySem3 = ftok(".", '3');
+    semid_3 = semget(keySem3, 1, IPC_CREAT | 0644);
+    semctl(semid_3, 0, SETVAL, 1);
+
 
     // Memoria de resultados 
     int *RESULTADO;
@@ -37,33 +50,38 @@ int main(){
     }
     printf("Matriz guardada \n");
 
-    semctl(semid, 0, SETVAL, 1);
+    int procesosCompletos;
 
-    while (semctl(semid, 0, GETVAL, 0) == 1) {
-        printf("Esperando multiplicación 1\n");
-        sleep(1);
-    }
-    RESULTADO = (int*)shmat(shmidResultados, NULL, 0);
-    printf("\nLa multiplicación de la primer fila es %d \n", RESULTADO[0]);
+    do {
+        procesosCompletos = 0;
 
-    semctl(semid, 0, SETVAL, 1);
+        printf("Esperando proceso(s): [ ");
 
-    while (semctl(semid, 0, GETVAL, 0) == 1) {
-        printf("Esperando multiplicación 2\n");
-        sleep(1);
-    }
-    RESULTADO = (int*)shmat(shmidResultados, NULL, 0);
-    printf("\nLa multiplicación de la segunda fila es %d \n", RESULTADO[1]);
 
-    semctl(semid, 0, SETVAL, 1);
+        if (semctl(semid_1, 0, GETVAL, 0) == 1) {
+            printf("1, ");
+        } else {
+            procesosCompletos += 1;
+        }
 
-    while (semctl(semid, 0, GETVAL, 0) == 1) {
-        printf("Esperando multiplicación 3...\n");
-        sleep(1);
-    }
-    RESULTADO = (int*)shmat(shmidResultados, NULL, 0);
-    printf("\nLa multiplicación de la tercera fila es %d \n", RESULTADO[2]);
+        if (semctl(semid_2, 0, GETVAL, 0) == 1) {
+            printf("2, ");
+        } else {
+            procesosCompletos += 1;
+        }
 
+        if (semctl(semid_3, 0, GETVAL, 0) == 1) {
+            printf("3, ");
+        } else {
+            procesosCompletos += 1;
+        }
+
+        printf("]\n");
+
+        sleep(2);
+    } while (procesosCompletos != 3);
+
+    RESULTADO= (int*)shmat(shmidResultados, NULL, 0);
     printf("\n\nLos resultados son: \n(%d, %d, %d) \n", RESULTADO[0], RESULTADO[1], RESULTADO[2]);
 
     shmdt(MATRIX);
@@ -71,7 +89,7 @@ int main(){
 
     shmctl(shmidMatriz, IPC_RMID, 0);
     shmctl(shmidResultados, IPC_RMID, 0);
-    semctl(semid, 0, IPC_RMID, 0);
+    semctl(semid_1, 0, IPC_RMID, 0);
 
     return 0;
 }
