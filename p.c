@@ -19,22 +19,15 @@ int main(){
     int shmidMatriz = shmget(keyMatriz, ROWS*COLS*sizeof(int), IPC_CREAT | 0777);
     MATRIX = (int*)shmat(shmidMatriz, NULL, 0);
 
-    // Memoria de semáforo 
-    int semid_1;
-    key_t keySem = ftok(".", '1');
-    semid_1 = semget(keySem, 1, IPC_CREAT | 0644);
+    int semids[ROWS];
 
     // Memoria de semáforo 
-    int semid_2;
-    key_t keySem2 = ftok(".", '2');
-    semid_2 = semget(keySem2, 1, IPC_CREAT | 0644);
-
-    // Memoria de semáforo 
-    int semid_3;
-    key_t keySem3 = ftok(".", '3');
-    semid_3 = semget(keySem3, 1, IPC_CREAT | 0644);
-
-
+    for (int i = 0; i < ROWS; i++) {
+        key_t keySem = ftok(".", i);
+        semids[i] = semget(keySem, 1, IPC_CREAT | 0644);
+    }
+    
+    
     // Memoria de resultados 
     int *RESULTADO;
     key_t keyResultados = ftok(".", 'd');
@@ -47,9 +40,9 @@ int main(){
     }
     printf("Matriz guardada \n");
 
-    semctl(semid_1, 0, SETVAL, 1);
-    semctl(semid_2, 0, SETVAL, 1);
-    semctl(semid_3, 0, SETVAL, 1);
+    for (int i = 0; i < ROWS; i++) {
+        semctl(semids[i], 0, SETVAL, 1);
+    }
 
     int procesosCompletos;
 
@@ -58,23 +51,12 @@ int main(){
 
         printf("Esperando proceso(s): [ ");
 
-
-        if (semctl(semid_1, 0, GETVAL, 0) == 1) {
-            printf("1, ");
-        } else {
-            procesosCompletos += 1;
-        }
-
-        if (semctl(semid_2, 0, GETVAL, 0) == 1) {
-            printf("2, ");
-        } else {
-            procesosCompletos += 1;
-        }
-
-        if (semctl(semid_3, 0, GETVAL, 0) == 1) {
-            printf("3, ");
-        } else {
-            procesosCompletos += 1;
+        for (int i = 0; i < ROWS; i++) {
+            if (semctl(semids[i], 0, GETVAL, 0) == 1) {
+                printf("r%d, ", i);
+            } else {
+                procesosCompletos += 1;
+            }
         }
 
         printf("]\n");
@@ -90,7 +72,10 @@ int main(){
 
     shmctl(shmidMatriz, IPC_RMID, 0);
     shmctl(shmidResultados, IPC_RMID, 0);
-    semctl(semid_1, 0, IPC_RMID, 0);
+    
+    for (int i = 0; i < ROWS; i++) {
+        semctl(semids[i], 0, IPC_RMID, 0);
+    }
 
     return 0;
 }
