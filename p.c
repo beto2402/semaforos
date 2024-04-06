@@ -40,6 +40,7 @@ int main(){
     }
     printf("Matriz guardada \n");
 
+    // Activar semáforos
     for (int i = 0; i < ROWS; i++) {
         semctl(semids[i], 0, SETVAL, 1);
     }
@@ -54,9 +55,10 @@ int main(){
         for (int i = 0; i < ROWS; i++) {
             if (semctl(semids[i], 0, GETVAL, 0) == 1) {
                 printf("r%d, ", i);
-            } else {
-                procesosCompletos += 1;
+                continue;
             }
+
+            procesosCompletos += 1;
         }
 
         printf("]\n");
