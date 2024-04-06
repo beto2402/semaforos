@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/sem.h>
-	
+
 int main(){
     // Memoria de matriz 
     int *MATRIX;
@@ -23,19 +23,16 @@ int main(){
     int semid_1;
     key_t keySem = ftok(".", '1');
     semid_1 = semget(keySem, 1, IPC_CREAT | 0644);
-    semctl(semid_1, 0, SETVAL, 1);
 
     // Memoria de semáforo 
     int semid_2;
     key_t keySem2 = ftok(".", '2');
     semid_2 = semget(keySem2, 1, IPC_CREAT | 0644);
-    semctl(semid_2, 0, SETVAL, 1);
 
     // Memoria de semáforo 
     int semid_3;
     key_t keySem3 = ftok(".", '3');
     semid_3 = semget(keySem3, 1, IPC_CREAT | 0644);
-    semctl(semid_3, 0, SETVAL, 1);
 
 
     // Memoria de resultados 
@@ -49,6 +46,10 @@ int main(){
         MATRIX[i] = values[i / COLS][i % COLS];
     }
     printf("Matriz guardada \n");
+
+    semctl(semid_1, 0, SETVAL, 1);
+    semctl(semid_2, 0, SETVAL, 1);
+    semctl(semid_3, 0, SETVAL, 1);
 
     int procesosCompletos;
 
